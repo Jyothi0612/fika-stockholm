@@ -14,7 +14,7 @@ A demo microservices app, built to be **deployed by hand, one server at a time**
 | basket | the basket; checks price and stock with menu | Python 3.14 (Flask + gunicorn) | Redis, menu |
 | delivery | pickup or bike delivery: distance, minutes, fee | Java 25 + Maven (Spring Boot) | MySQL, menu, basket |
 | payment | demo mobile pay; queues the order, saves history, empties the basket | Python 3.14 | user, basket, RabbitMQ |
-| kitchen | "bakes" each paid order; no port, reads the queue | Go | RabbitMQ |
+| kitchen | "bakes" each paid order and reports its status (pickup code, on the way, delivered); no port | Go | RabbitMQ, user |
 | mongodb · redis · mysql · rabbitmq | the data stores | | |
 
 ## Deploy it (RHEL 9 practice AMI, t3.micro is enough)
@@ -45,7 +45,7 @@ One group per server, named project-component. Allow SSH (22) from your IP on al
 |---|---|---|
 | fika-frontend | 80 | 0.0.0.0/0 |
 | fika-menu | 8080 | fika-frontend, fika-basket, fika-delivery |
-| fika-user | 8080 | fika-frontend, fika-payment |
+| fika-user | 8080 | fika-frontend, fika-payment, fika-kitchen |
 | fika-basket | 8080 | fika-frontend, fika-delivery, fika-payment |
 | fika-delivery | 8080 | fika-frontend |
 | fika-payment | 8080 | fika-frontend |

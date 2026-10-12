@@ -4,8 +4,8 @@ The payment service is a demo mobile pay: **no real money moves**. When you pay,
 
 1. checks the user exists (user service),
 2. reads the basket and checks it has items and a delivery choice (basket service),
-3. puts the order on the RabbitMQ `orders` queue for the kitchen,
-4. saves the order to the user's history, and empties the basket.
+3. saves the order to the user's history with status `paid` (first, so the kitchen always finds it),
+4. puts the order on the RabbitMQ `orders` queue for the kitchen, and empties the basket.
 
 Server: **RHEL 9 practice AMI**, security group **fika-payment**, DNS `payment.fika.<domain>` → private IP. Needs [04-rabbitmq](04-rabbitmq.md), [06-user](06-user.md) and [07-basket](07-basket.md).
 

@@ -67,12 +67,14 @@ journalctl -u user -n 20
 | POST | `/register` | `{name, email, password}` → 201, or 409 if the name is taken |
 | POST | `/login` | `{name, password}` → 200, or 401 |
 | GET | `/check/<name>` | 200 or 404, used by payment |
-| POST | `/order/<name>` | saves an order to the history, used by payment |
+| POST | `/order/<name>` | saves an order to the history (status `paid`), used by payment |
+| PUT | `/order/<name>/<orderid>/status` | `{status, pickupCode?, etaMinutes?}`, used by the kitchen |
+| GET | `/order/<name>/<orderid>` | one order with its live status, used by the order page |
 | GET | `/history/<name>` | the user's orders, newest first |
 
 ## Security group
 
-Allow **inbound TCP 8080** from `fika-frontend` and `fika-payment`.
+Allow **inbound TCP 8080** from `fika-frontend`, `fika-payment` and `fika-kitchen` (the kitchen reports each order's status).
 
 ## Troubleshooting
 

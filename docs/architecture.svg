@@ -96,7 +96,7 @@
   <path class="q" d="M1030 566 V 620"/>
   <g>
     <rect class="card" x="935" y="620" width="190" height="92" rx="14"/><rect x="935" y="620" width="190" height="8" rx="4" fill="#00add8"/>
-    <text class="t" x="953" y="656">kitchen</text><text class="s" x="953" y="676">Go worker · no port</text><text class="call" x="953" y="698">bakes · ships by bike</text>
+    <text class="t" x="953" y="656">kitchen</text><text class="s" x="953" y="676">Go worker · no port</text><text class="call" x="953" y="698">bakes · → user: status</text>
   </g>
 
   <!-- an order travelling payment -> RabbitMQ -> kitchen -->

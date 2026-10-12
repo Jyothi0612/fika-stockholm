@@ -3,10 +3,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"math/rand"
+	"net/http"
 	"os"
 	"time"
 
@@ -37,6 +39,30 @@ func env(k, d string) string {
 		return v
 	}
 	return d
+}
+
+var client = &http.Client{Timeout: 5 * time.Second}
+
+// report tells the user service how the order is going, so the customer sees it live.
+// Retries a few times; if the user service is down, the order is still baked (the log says so).
+func report(log *slog.Logger, o order, status map[string]any) {
+	url := fmt.Sprintf("http://%s:%s/order/%s/%s/status", env("USER_HOST", "localhost"), env("USER_PORT", "8080"), o.User, o.OrderID)
+	body, _ := json.Marshal(status)
+	for try := 1; try <= 3; try++ {
+		req, _ := http.NewRequest(http.MethodPut, url, bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Request-Id", o.RequestID)
+		res, err := client.Do(req)
+		if err == nil {
+			res.Body.Close()
+			if res.StatusCode < 300 {
+				return
+			}
+			err = fmt.Errorf("user service answered %d", res.StatusCode)
+		}
+		log.Warn("could not report status, retrying", "orderid", o.OrderID, "status", status["status"], "try", try, "error", err.Error())
+		time.Sleep(time.Second)
+	}
 }
 
 func main() {
@@ -81,11 +107,20 @@ func run(url string, log *slog.Logger) error {
 			n += it.Qty
 		}
 		log.Info("order received", "orderid", o.OrderID, "user", o.User, "items", n, "total", o.Total, "cafe", o.Delivery.Cafe, "requestId", o.RequestID)
-		time.Sleep(time.Duration(300*n) * time.Millisecond) // "baking"
+		report(log, o, map[string]any{"status": "preparing"})
+		time.Sleep(time.Duration(3+n) * time.Second) // "baking": a few seconds in the demo
 		if o.Delivery.Mode == "pickup" {
-			log.Info("order ready for pickup", "orderid", o.OrderID, "pickupCode", fmt.Sprintf("FIKA-%04d", rand.Intn(10000)))
+			code := fmt.Sprintf("FIKA-%04d", rand.Intn(10000))
+			log.Info("order ready for pickup", "orderid", o.OrderID, "pickupCode", code)
+			report(log, o, map[string]any{"status": "ready for pickup", "pickupCode": code})
 		} else {
 			log.Info("order out for delivery by bike", "orderid", o.OrderID, "district", o.Delivery.District, "etaMinutes", o.Delivery.Minutes)
+			report(log, o, map[string]any{"status": "on the way", "etaMinutes": o.Delivery.Minutes})
+			go func(o order) { // the demo bike arrives after a short ride
+				time.Sleep(20 * time.Second)
+				log.Info("order delivered", "orderid", o.OrderID, "district", o.Delivery.District)
+				report(log, o, map[string]any{"status": "delivered"})
+			}(o)
 		}
 		_ = m.Ack(false)
 	}

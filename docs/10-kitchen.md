@@ -1,8 +1,13 @@
 # 10 · kitchen (Go)
 
-The kitchen is a worker, not a web service: it has **no port**. It reads the `orders` queue in RabbitMQ, "bakes" each order (a short pause per item), and logs whether it is ready for pickup or out for delivery by bike. Because it only reads the queue, orders wait safely whenever the kitchen is down.
+The kitchen is a worker, not a web service: it has **no port**. It reads the `orders` queue in RabbitMQ, "bakes" each order (a few seconds in the demo), and reports each step to the user service, so the customer's order page updates live:
 
-Server: **RHEL 9 practice AMI**, security group **fika-kitchen**, DNS `kitchen.fika.<domain>` → private IP (optional). Needs [04-rabbitmq](04-rabbitmq.md).
+- pickup: `paid` → `preparing` → `ready for pickup` with a code like `FIKA-4821`
+- bike: `paid` → `preparing` → `on the way` (with the ETA) → `delivered` (20 s later, in the demo)
+
+Because it only reads the queue, orders wait safely whenever the kitchen is down. It bakes one order at a time, so a second order waits its turn.
+
+Server: **RHEL 9 practice AMI**, security group **fika-kitchen**, DNS `kitchen.fika.<domain>` → private IP (optional). Needs [04-rabbitmq](04-rabbitmq.md) and [06-user](06-user.md).
 
 ## Install Go
 
@@ -40,6 +45,8 @@ User=fika
 Environment=AMQP_HOST=rabbitmq.fika.<domain>
 Environment=AMQP_USER=fika
 Environment=AMQP_PASS=fika123
+Environment=USER_HOST=user.fika.<domain>
+Environment=USER_PORT=8080
 ExecStart=/app/kitchen
 SyslogIdentifier=kitchen
 Restart=on-failure
@@ -75,7 +82,7 @@ On the RabbitMQ server, `rabbitmqctl list_queues name messages consumers` should
 
 ## Security group
 
-No inbound rules (SSH only). The kitchen connects **out** to RabbitMQ 5672, so the **RabbitMQ** group must allow `fika-kitchen`.
+No inbound rules (SSH only). The kitchen connects **out**: to RabbitMQ 5672 and to the user service 8080. So the **RabbitMQ** group and the **user** group must both allow `fika-kitchen`.
 
 ## Troubleshooting
 
@@ -84,4 +91,5 @@ No inbound rules (SSH only). The kitchen connects **out** to RabbitMQ 5672, so t
 | `lost connection to RabbitMQ, retrying in 5s … i/o timeout` | the RabbitMQ security group doesn't allow fika-kitchen (payment can still work, so this is easy to miss) |
 | `… connection refused` | RabbitMQ is down, or `AMQP_HOST` points to the wrong server |
 | `ACCESS_REFUSED` | user `fika` missing on RabbitMQ, or wrong password |
+| `could not report status, retrying … i/o timeout` | the user security group doesn't allow fika-kitchen: orders are baked, but the customer's page stays on "Being prepared" |
 | Orders paid but nothing in this log | check `messages` in `rabbitmqctl list_queues`: if it grows, the kitchen isn't connected |

@@ -76,6 +76,25 @@ app.post('/order/:name', async (req, res) => {
   res.status(201).json({ ok: true });
 });
 
+// used by the kitchen: paid -> preparing -> ready (pickup code) or on the way (ETA)
+app.put('/order/:name/:orderid/status', async (req, res) => {
+  if (!db) return res.status(503).json({ message: 'database unavailable' });
+  const { status, pickupCode, etaMinutes } = req.body || {};
+  if (!status) return res.status(400).json({ message: 'status is required' });
+  const set = { 'history.$.status': status, 'history.$.updated': new Date() };
+  if (pickupCode) set['history.$.pickupCode'] = pickupCode;
+  if (etaMinutes != null) set['history.$.etaMinutes'] = etaMinutes;
+  const r = await db.collection('orders').updateOne({ name: req.params.name, 'history.orderid': req.params.orderid }, { $set: set });
+  r.matchedCount ? res.json({ ok: true }) : res.status(404).json({ message: 'order not found' });
+});
+
+app.get('/order/:name/:orderid', async (req, res) => {
+  if (!db) return res.status(503).json({ message: 'database unavailable' });
+  const doc = await db.collection('orders').findOne({ name: req.params.name }, { projection: { history: { $elemMatch: { orderid: req.params.orderid } } } });
+  const o = doc && doc.history && doc.history[0];
+  o ? res.json(o) : res.status(404).json({ message: 'order not found' });
+});
+
 app.get('/history/:name', async (req, res) => {
   if (!db) return res.status(503).json({ message: 'database unavailable' });
   const doc = await db.collection('orders').findOne({ name: req.params.name });

@@ -52,18 +52,25 @@ def pay(bid):
 
     order = {"orderid": str(uuid.uuid4()), "user": name, "items": basket["items"], "delivery": basket["delivery"],
              "total": basket["total"], "currency": "SEK", "requestId": g.rid}
+    # save first, so the kitchen always finds the order when it reports progress
+    try:
+        requests.post(f"{USER}/order/{name}", json={**{k: order[k] for k in ("orderid", "items", "delivery", "total")}, "status": "paid"},
+                      timeout=5, headers=hdr).raise_for_status()
+    except requests.RequestException as e:
+        return jsonify(message="could not save the order", error=str(e)), 503
     try:
         conn, ch = channel()
         ch.basic_publish(exchange="", routing_key="orders", body=json.dumps(order), properties=pika.BasicProperties(delivery_mode=2))
         conn.close()
     except Exception as e:
-        log("ERROR", "could not queue the order", error=str(e))
+        log("ERROR", "could not queue the order", error=str(e), orderid=order["orderid"])
+        try: requests.put(f"{USER}/order/{name}/{order['orderid']}/status", json={"status": "payment failed"}, timeout=5, headers=hdr)
+        except requests.RequestException: pass
         return jsonify(message="payments are paused, try again in a minute", error=str(e)), 503
     try:
-        requests.post(f"{USER}/order/{name}", json={k: order[k] for k in ("orderid", "items", "delivery", "total")}, timeout=5, headers=hdr)
         requests.delete(f"{BASKET}/basket/{bid}", timeout=5, headers=hdr)
     except requests.RequestException as e:
-        log("WARN", "order queued but history/basket update failed", error=str(e), orderid=order["orderid"])
+        log("WARN", "order queued but the basket was not emptied", error=str(e), orderid=order["orderid"])
     log("INFO", "order paid", orderid=order["orderid"], user=name, total=order["total"])
     return jsonify(orderid=order["orderid"], total=order["total"], message="Tack! Your fika is on its way to the kitchen.")
 

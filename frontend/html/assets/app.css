@@ -52,3 +52,11 @@ label { font-size: 13px; font-weight: 700; display: block; margin: 12px 0 4px }
 #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 600; box-shadow: 0 8px 30px #0003 }
 #toast.bad { background: var(--bad) }
 @media (max-width: 780px) { .hero, .two { grid-template-columns: 1fr } .hero-art { display: none } nav { gap: 10px } }
+.steps { list-style: none; padding: 0; margin: 20px 0; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap }
+.steps li { padding: 8px 14px; border-radius: 999px; background: #f3e6d8; color: var(--muted); font-weight: 700; font-size: 14px }
+.steps li.done { background: #dcefe3; color: var(--ok) }
+.steps li.now { background: var(--accent); color: #fff; animation: pulse 1.4s ease-in-out infinite }
+.steps li.done::before { content: '✓ ' }
+.code { font-size: 18px; background: #fff4e8; border: 2px dashed var(--accent); border-radius: 12px; padding: 12px }
+.code b { font-size: 26px; letter-spacing: 2px; display: block; margin-top: 4px }
+@keyframes pulse { 50% { opacity: .65 } }

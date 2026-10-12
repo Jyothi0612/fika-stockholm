@@ -105,7 +105,7 @@ async function account() {
     let hist = [];
     try { hist = await api(`user/history/${u.name}`); } catch (_) {}
     view.innerHTML = `<div class="row" style="justify-content:space-between"><h1>Hej, ${esc(u.name)}</h1><button class="ghost" id="logout">Sign out</button></div>
-      <h2>Your orders</h2>${hist.length ? `<div class="panel"><table><tr><th>Order</th><th>Items</th><th>How</th><th class="r">Total</th></tr>${hist.map((o) => `<tr><td class="small">#${esc(o.orderid.slice(0, 8))}<br><span class="muted">${new Date(o.at).toLocaleString('sv-SE')}</span></td><td>${o.items.map((i) => `${i.qty} × ${esc(i.name)}`).join('<br>')}</td><td class="small">${o.delivery.mode === 'pickup' ? 'Pickup' : `Bike to ${esc(o.delivery.district)}`}</td><td class="r">${sek(o.total)}</td></tr>`).join('')}</table></div>` : '<div class="panel muted">No orders yet.</div>'}`;
+      <h2>Your orders</h2>${hist.length ? `<div class="panel"><table><tr><th>Order</th><th>Items</th><th>How</th><th>Status</th><th class="r">Total</th></tr>${hist.map((o) => `<tr><td class="small">#${esc(o.orderid.slice(0, 8))}<br><span class="muted">${new Date(o.at).toLocaleString('sv-SE')}</span></td><td>${o.items.map((i) => `${i.qty} × ${esc(i.name)}`).join('<br>')}</td><td class="small">${o.delivery.mode === 'pickup' ? 'Pickup' : `Bike to ${esc(o.delivery.district)}`}</td><td class="small"><a href="/done/${esc(o.orderid)}" data-link>${LABEL[o.status] || 'Paid'}</a>${o.pickupCode ? `<br><b>${esc(o.pickupCode)}</b>` : ''}</td><td class="r">${sek(o.total)}</td></tr>`).join('')}</table></div>` : '<div class="panel muted">No orders yet.</div>'}`;
     return;
   }
   view.innerHTML = `<div class="two"><div><h1>Välkommen.</h1><p class="muted">Sign in to pay. Your basket comes with you: what you added as a guest moves to your account.</p></div>
@@ -128,9 +128,24 @@ async function auth(form) {
   } catch (e) { toast(e.message, true); }
 }
 
+const STEPS = { pickup: ['paid', 'preparing', 'ready for pickup'], delivery: ['paid', 'preparing', 'on the way', 'delivered'] };
+const LABEL = { 'paid': 'Paid', 'preparing': 'Being prepared', 'ready for pickup': 'Ready for pickup', 'on the way': 'On the way by bike', 'delivered': 'Delivered', 'payment failed': 'Payment failed' };
 function done(id) {
-  view.innerHTML = `<div class="panel" style="max-width:560px;margin:30px auto;text-align:center"><div style="font-size:56px">🥐☕</div><h1>Tack för din beställning!</h1>
-    <p class="muted">Your order is with the kitchen now.</p><p class="small">Order <b>${esc(id)}</b></p><p class="row" style="justify-content:center"><a class="btn" href="/" data-link>Order more fika</a><a href="/account" data-link>Your orders</a></p></div>`;
+  view.innerHTML = `<div class="panel" style="max-width:600px;margin:30px auto;text-align:center"><div style="font-size:56px">🥐☕</div><h1>Tack för din beställning!</h1>
+    <p class="small muted">Order <b>${esc(id)}</b></p><div id="track" class="track"><p class="muted">Checking with the kitchen…</p></div>
+    <p class="row" style="justify-content:center"><a class="btn" href="/" data-link>Order more fika</a><a href="/account" data-link>Your orders</a></p></div>`;
+  const poll = async () => {
+    if (location.pathname !== `/done/${id}` || !me()) return;
+    let o;
+    try { o = await api(`user/order/${me().name}/${id}`); } catch (_) { setTimeout(poll, 2000); return; }
+    const steps = STEPS[o.delivery.mode === 'pickup' ? 'pickup' : 'delivery'], at = steps.indexOf(o.status);
+    $('#track').innerHTML = `<ol class="steps">${steps.map((s, i) => `<li class="${i < at ? 'done' : i === at ? 'now' : ''}">${LABEL[s]}</li>`).join('')}</ol>` +
+      (o.pickupCode ? `<p class="code">Show this at ${esc(o.delivery.cafe)}: <b>${esc(o.pickupCode)}</b></p>` : '') +
+      (o.status === 'on the way' ? `<p class="muted">From ${esc(o.delivery.cafe)} to ${esc(o.delivery.district)}, about ${o.etaMinutes} min.</p>` : '') +
+      (o.status === 'payment failed' ? '<p class="muted">Nothing was charged. Please try again.</p>' : '');
+    if (!['ready for pickup', 'delivered', 'payment failed'].includes(o.status)) setTimeout(poll, 2000);
+  };
+  poll();
 }
 
 const SERVICES = [['frontend', 'nginx', '/health', 'text'], ['menu', 'Node.js', '/api/menu/health'], ['user', 'Node.js', '/api/user/health'], ['basket', 'Python', '/api/basket/health'], ['delivery', 'Java', '/api/delivery/health'], ['payment', 'Python', '/api/payment/health']];
