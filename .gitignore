@@ -1,0 +1,7 @@
+node_modules/
+services/delivery/target/
+services/kitchen/kitchen
+local/default.d/
+__pycache__/
+*.tar.gz
+.DS_Store

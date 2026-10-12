@@ -1,0 +1,59 @@
+# LOCAL TEST ONLY: runs all 11 parts on one machine to check the app before deploying it server by server.
+name: fika
+services:
+  mongodb:  { image: mongo:7 }
+  redis:    { image: redis:7 }
+  mysql:
+    image: mysql:8.4
+    environment: { MYSQL_ROOT_PASSWORD: "Fika@1" }
+    volumes: [ "../db:/docker-entrypoint-initdb.d:ro" ]
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    environment: { RABBITMQ_DEFAULT_USER: fika, RABBITMQ_DEFAULT_PASS: fika123 }
+  seed-menu:
+    image: mongo:7
+    depends_on: [mongodb]
+    volumes: [ "../db:/db:ro" ]
+    entrypoint: [ "sh", "-c", "sleep 4; mongosh --host mongodb /db/menu-data.js" ]
+  menu:
+    image: node:24-alpine
+    working_dir: /app
+    volumes: [ "../services/menu:/app" ]
+    environment: { MONGO_URL: "mongodb://mongodb:27017/menu" }
+    command: sh -c "npm install --no-audit --no-fund && node server.js"
+  user:
+    image: node:24-alpine
+    working_dir: /app
+    volumes: [ "../services/user:/app" ]
+    environment: { MONGO_URL: "mongodb://mongodb:27017/users", REDIS_URL: "redis://redis:6379" }
+    command: sh -c "npm install --no-audit --no-fund && node server.js"
+  basket:
+    image: python:3.13-slim
+    working_dir: /app
+    volumes: [ "../services/basket:/app" ]
+    environment: { REDIS_HOST: redis, MENU_HOST: menu, MENU_PORT: "8080" }
+    command: sh -c "pip install -q -r requirements.txt && gunicorn --config gunicorn.conf.py basket:app"
+  payment:
+    image: python:3.13-slim
+    working_dir: /app
+    volumes: [ "../services/payment:/app" ]
+    environment: { USER_HOST: user, USER_PORT: "8080", BASKET_HOST: basket, BASKET_PORT: "8080", AMQP_HOST: rabbitmq, AMQP_USER: fika, AMQP_PASS: fika123 }
+    command: sh -c "pip install -q -r requirements.txt && gunicorn --config gunicorn.conf.py payment:app"
+  delivery:
+    image: maven:3.9-eclipse-temurin-25
+    working_dir: /app
+    volumes: [ "../services/delivery:/app", "m2:/root/.m2" ]
+    environment: { DB_HOST: mysql, DB_USER: delivery, DB_PASS: "Fika@123", MENU_HOST: menu, BASKET_HOST: basket }
+    command: sh -c "mvn -q clean package && java -jar target/delivery.jar"
+  kitchen:
+    image: golang:1.23
+    working_dir: /app
+    volumes: [ "../services/kitchen:/app", "gocache:/go" ]
+    environment: { AMQP_HOST: rabbitmq, AMQP_USER: fika, AMQP_PASS: fika123 }
+    command: sh -c "go mod tidy && go build -o kitchen . && ./kitchen"
+  frontend:
+    image: nginx:1.27-alpine
+    ports: [ "8090:80" ]
+    volumes: [ "../frontend/html:/usr/share/nginx/html:ro", "./default.conf:/etc/nginx/conf.d/default.conf:ro", "./default.d:/etc/nginx/default.d:ro" ]
+    depends_on: [menu, user, basket, delivery, payment]
+volumes: { m2: {}, gocache: {} }

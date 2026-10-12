@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fika · order from Stockholm cafés</title>
+  <meta name="description" content="Fika: a demo microservices app. Order buns and coffee from Stockholm cafés for pickup or bike delivery.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <div class="topline">Demo app · fictional cafés · no real money · <a href="/status">System status</a></div>
+  <header class="bar">
+    <a class="logo" href="/" data-link>fika<span>.</span></a>
+    <nav>
+      <a href="/" data-link>Cafés</a>
+      <a href="/account" data-link id="who">Sign in</a>
+      <a href="/basket" data-link class="btn-dark">Basket <b id="count">0</b></a>
+    </nav>
+  </header>
+  <main id="view"></main>
+  <footer>Fika is a demo of 11 servers on AWS: nginx, menu, user, basket, delivery, payment and kitchen, with MongoDB, Redis, MySQL and RabbitMQ. Cafés are made up; districts are real.</footer>
+  <div id="toast" hidden></div>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

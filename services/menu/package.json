@@ -1,0 +1,11 @@
+{
+  "name": "fika-menu",
+  "version": "1.0.0",
+  "description": "Fika menu service: Stockholm cafés and their items (MongoDB)",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongodb": "^6.12.0"
+  }
+}
