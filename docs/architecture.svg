@@ -30,7 +30,7 @@
   <!-- browser and nginx -->
   <text class="lbl" x="40" y="34">PUBLIC</text>
   <rect class="card" x="40" y="60" width="160" height="80" rx="14"/>
-  <text x="60" y="96" font-size="26">🌐</text><text class="t" x="96" y="94">Browser</text><text class="s" x="96" y="116">you, anywhere</text>
+  <text x="60" y="96" font-size="26">🌐</text><text class="t" x="96" y="94">Browser</text><text class="s" x="62" y="122">shop + order page</text>
   <path class="http" d="M200 100 H298" marker-end="url(#ao)"/>
   <circle class="rq" r="6"><animateMotion dur="2.4s" repeatCount="indefinite" path="M200 100 H298"/></circle>
 
@@ -46,6 +46,7 @@
   <!-- nginx routes to 5 services (kitchen has no port) -->
   <path class="http" d="M360 160 C 360 205, 150 205, 150 248" marker-end="url(#ao)"/>
   <path class="http" d="M480 160 C 480 205, 370 205, 370 248" marker-end="url(#ao)"/>
+  <rect class="pill" x="362" y="186" width="126" height="22" rx="11" style="stroke:#e9c3a5"/><text class="cl" x="425" y="201" text-anchor="middle" style="fill:#c4692b">status, every 2 s</text>
   <path class="http" d="M600 160 V 248" marker-end="url(#ao)"/>
   <path class="http" d="M720 160 C 720 205, 810 205, 810 248" marker-end="url(#ao)"/>
   <path class="http" d="M840 160 C 840 205, 1030 205, 1030 248" marker-end="url(#ao)"/>
