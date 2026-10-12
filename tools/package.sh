@@ -2,9 +2,10 @@
 # Build one .tar.gz per server into dist/. Each one is extracted straight into /app on its server.
 # Published as GitHub release assets: https://github.com/Jyothi0612/fika-stockholm/releases/latest/download/<name>.tar.gz
 set -euo pipefail
+export COPYFILE_DISABLE=1   # no macOS ._ files or xattrs in the archives
 cd "$(dirname "$0")/.."
 rm -rf dist && mkdir dist
-X="--exclude=node_modules --exclude=__pycache__ --exclude=target --exclude=.venv --exclude=kitchen/kitchen --exclude=.DS_Store"
+X="--no-xattrs --no-mac-metadata --uid 0 --gid 0 --exclude=node_modules --exclude=__pycache__ --exclude=target --exclude=.venv --exclude=kitchen/kitchen --exclude=.DS_Store"
 tar $X -czf dist/menu.tar.gz     -C services/menu     server.js package.json package-lock.json -C ../.. db/menu-data.js
 tar $X -czf dist/user.tar.gz     -C services/user     server.js package.json package-lock.json
 tar $X -czf dist/basket.tar.gz   -C services/basket   basket.py requirements.txt gunicorn.conf.py
