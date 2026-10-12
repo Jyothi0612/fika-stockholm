@@ -4,22 +4,7 @@ A demo microservices app, built to be **deployed by hand, one server at a time**
 
 11 servers, 4 languages, 4 data stores. Cafés are fictional; districts are real Stockholm areas; payment is a demo (no real money).
 
-```
-                        ┌──────────── fika.<domain> (public) ────────────┐
- Browser ──── :80 ────► │ frontend · nginx                               │
-                        │  /api/menu/  /api/user/  /api/basket/          │
-                        │  /api/delivery/  /api/payment/                 │
-                        └───┬─────────┬──────────┬───────────┬──────────┬┘
-                            ▼         ▼          ▼           ▼          ▼
-                          menu      user      basket     delivery    payment
-                         Node.js   Node.js    Python      Java 25    Python
-                            │       │   │       │   ▲       │  │       │  │  │
-                            ▼       ▼   ▼       ▼   └───────┘  ▼       │  │  ▼
-                         MongoDB ◄──┘  Redis ◄──┘            MySQL     │  │ RabbitMQ ──► kitchen
-                         (cafés,      (guest IDs,          (districts) │  │  (orders)     Go worker
-                          users,       baskets)                        │  │               no port
-                          orders)                    payment → user ◄──┘  └──► basket
-```
+<p align="center"><img src="docs/architecture.svg" alt="Fika architecture: browser → nginx frontend → menu, user, basket, delivery, payment services → MongoDB, Redis, MySQL, RabbitMQ → kitchen worker" width="100%"></p>
 
 | Server | What it does | Language | Talks to |
 |---|---|---|---|

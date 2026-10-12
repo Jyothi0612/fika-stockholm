@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 740" width="1200" height="740" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Fika architecture: 11 servers</title>
+  <style>
+    .bg { fill: #f7f2ea }
+    .card { fill: #fffdf9; stroke: #e7ddd0; stroke-width: 1.5 }
+    .t { fill: #2b211b; font-weight: 700; font-size: 19px }
+    .s { fill: #7b6d63; font-size: 13px }
+    .m { fill: #7b6d63; font-size: 12px; font-family: ui-monospace, Menlo, monospace }
+    .lbl { fill: #9a8a7e; font-size: 12px; font-weight: 700; letter-spacing: 1.5px }
+    .http { fill: none; stroke: #c4692b; stroke-width: 2.2; stroke-dasharray: 7 7; animation: flow 1.2s linear infinite }
+    .db { fill: none; stroke: #8c7d72; stroke-width: 2.2; stroke-dasharray: 3 6; animation: flow 1.8s linear infinite }
+    .q { fill: none; stroke: #ff6600; stroke-width: 2.6; stroke-dasharray: 10 6; animation: flow 1s linear infinite }
+    .call { fill: #c4692b; font-size: 12.5px; font-weight: 600 }
+    .pk { fill: #ff6600 } .pkt { fill: #fff; font-size: 11px; font-weight: 800 }
+    .rq { fill: #c4692b }
+    @keyframes flow { to { stroke-dashoffset: -28 } }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117 } .card { fill: #161b22; stroke: #30363d }
+      .t { fill: #e6edf3 } .s, .m { fill: #8b949e } .lbl { fill: #6e7681 } .db { stroke: #6e7681 }
+    }
+  </style>
+  <rect class="bg" width="1200" height="740" rx="18"/>
+
+  <!-- browser and nginx -->
+  <text class="lbl" x="40" y="34">PUBLIC</text>
+  <rect class="card" x="40" y="60" width="160" height="80" rx="14"/>
+  <text x="62" y="96" font-size="26">🌐</text><text class="t" x="98" y="94">Browser</text><text class="s" x="98" y="116">you, anywhere</text>
+  <path class="http" d="M200 100 H300"/>
+  <circle class="rq" r="6"><animateMotion dur="2.4s" repeatCount="indefinite" path="M200 100 H300"/></circle>
+
+  <rect class="card" x="300" y="44" width="600" height="116" rx="16"/>
+  <rect x="300" y="44" width="10" height="116" rx="5" fill="#009639"/>
+  <text class="t" x="330" y="80">frontend · nginx :80</text>
+  <text class="s" x="330" y="102">fika.&lt;domain&gt; · serves the shop, adds X-Request-Id, JSON 502/504</text>
+  <text class="m" x="330" y="132">/api/menu/   /api/user/   /api/basket/   /api/delivery/   /api/payment/</text>
+  <text class="lbl" x="930" y="86">PRIVATE NETWORK</text>
+  <text class="s" x="930" y="108">services talk over</text>
+  <text class="s" x="930" y="126">private IPs and DNS names</text>
+
+  <!-- nginx to each service -->
+  <path class="http" d="M360 160 C 360 205, 150 205, 150 250"/>
+  <path class="http" d="M480 160 C 480 205, 370 205, 370 250"/>
+  <path class="http" d="M600 160 V 250"/>
+  <path class="http" d="M720 160 C 720 205, 810 205, 810 250"/>
+  <path class="http" d="M840 160 C 840 205, 1030 205, 1030 250"/>
+
+  <!-- services: colour bar = language -->
+  <g>
+    <rect class="card" x="60" y="250" width="180" height="104" rx="14"/><rect x="60" y="250" width="180" height="8" rx="4" fill="#5fa04e"/>
+    <text class="t" x="78" y="288">menu</text><text class="s" x="78" y="308">Node.js 24 · :8080</text><text class="call" x="78" y="336">cafés · prices · stock</text>
+  </g>
+  <g>
+    <rect class="card" x="280" y="250" width="180" height="104" rx="14"/><rect x="280" y="250" width="180" height="8" rx="4" fill="#5fa04e"/>
+    <text class="t" x="298" y="288">user</text><text class="s" x="298" y="308">Node.js 24 · :8080</text><text class="call" x="298" y="336">guest IDs · bcrypt login</text>
+  </g>
+  <g>
+    <rect class="card" x="500" y="250" width="180" height="104" rx="14"/><rect x="500" y="250" width="180" height="8" rx="4" fill="#3776ab"/>
+    <text class="t" x="518" y="288">basket</text><text class="s" x="518" y="308">Python · :8080</text><text class="call" x="518" y="336">→ menu for price</text>
+  </g>
+  <g>
+    <rect class="card" x="720" y="250" width="180" height="104" rx="14"/><rect x="720" y="250" width="180" height="8" rx="4" fill="#e76f00"/>
+    <text class="t" x="738" y="288">delivery</text><text class="s" x="738" y="308">Java 25 · :8080</text><text class="call" x="738" y="336">→ menu, → basket</text>
+  </g>
+  <g>
+    <rect class="card" x="940" y="250" width="180" height="104" rx="14"/><rect x="940" y="250" width="180" height="8" rx="4" fill="#3776ab"/>
+    <text class="t" x="958" y="288">payment</text><text class="s" x="958" y="308">Python · :8080</text><text class="call" x="958" y="336">→ user, → basket</text>
+  </g>
+
+  <!-- services to data stores -->
+  <path class="db" d="M150 354 C 150 410, 240 420, 240 470"/>
+  <path class="db" d="M340 354 C 340 410, 290 420, 290 470"/>
+  <path class="db" d="M410 354 C 410 410, 500 420, 500 470"/>
+  <path class="db" d="M590 354 C 590 410, 560 420, 560 470"/>
+  <path class="db" d="M810 354 V 470"/>
+  <path class="q" d="M1030 354 V 470"/>
+  <text class="lbl" x="40" y="456">DATA</text>
+
+  <g>
+    <rect class="card" x="170" y="470" width="190" height="96" rx="14"/><rect x="170" y="470" width="8" height="96" rx="4" fill="#47a248"/>
+    <text class="t" x="192" y="504">MongoDB</text><text class="m" x="192" y="524">:27017</text><text class="s" x="192" y="548">cafés · users · orders</text>
+  </g>
+  <g>
+    <rect class="card" x="430" y="470" width="190" height="96" rx="14"/><rect x="430" y="470" width="8" height="96" rx="4" fill="#dc382d"/>
+    <text class="t" x="452" y="504">Redis</text><text class="m" x="452" y="524">:6379</text><text class="s" x="452" y="548">guest IDs · baskets</text>
+  </g>
+  <g>
+    <rect class="card" x="715" y="470" width="190" height="96" rx="14"/><rect x="715" y="470" width="8" height="96" rx="4" fill="#4479a1"/>
+    <text class="t" x="737" y="504">MySQL</text><text class="m" x="737" y="524">:3306</text><text class="s" x="737" y="548">21 Stockholm districts</text>
+  </g>
+  <g>
+    <rect class="card" x="935" y="470" width="190" height="96" rx="14"/><rect x="935" y="470" width="8" height="96" rx="4" fill="#ff6600"/>
+    <text class="t" x="957" y="504">RabbitMQ</text><text class="m" x="957" y="524">:5672</text><text class="s" x="957" y="548">queue: orders</text>
+  </g>
+
+  <!-- queue to kitchen -->
+  <path class="q" d="M1030 566 V 620"/>
+  <g>
+    <rect class="card" x="935" y="620" width="190" height="92" rx="14"/><rect x="935" y="620" width="190" height="8" rx="4" fill="#00add8"/>
+    <text class="t" x="953" y="656">kitchen</text><text class="s" x="953" y="676">Go worker · no port</text><text class="call" x="953" y="698">bakes · ships by bike</text>
+  </g>
+
+  <!-- an order travelling payment -> RabbitMQ -> kitchen -->
+  <g>
+    <circle class="pk" r="15"/><text class="pkt" text-anchor="middle" y="4">🥐</text>
+    <animateMotion dur="4s" repeatCount="indefinite" keyPoints="0;0.42;0.42;1" keyTimes="0;0.35;0.6;1" calcMode="linear" path="M1030 330 V 518 V 666"/>
+  </g>
+
+  <!-- legend -->
+  <text class="lbl" x="40" y="626">LANGUAGES</text>
+  <g font-size="13">
+    <rect x="40" y="640" width="14" height="14" rx="3" fill="#009639"/><text class="s" x="62" y="652">nginx</text>
+    <rect x="130" y="640" width="14" height="14" rx="3" fill="#5fa04e"/><text class="s" x="152" y="652">Node.js</text>
+    <rect x="230" y="640" width="14" height="14" rx="3" fill="#3776ab"/><text class="s" x="252" y="652">Python</text>
+    <rect x="325" y="640" width="14" height="14" rx="3" fill="#e76f00"/><text class="s" x="347" y="652">Java</text>
+    <rect x="405" y="640" width="14" height="14" rx="3" fill="#00add8"/><text class="s" x="427" y="652">Go</text>
+  </g>
+  <path class="http" d="M40 686 H90"/><text class="s" x="100" y="690">HTTP call</text>
+  <path class="db" d="M200 686 H250"/><text class="s" x="260" y="690">database</text>
+  <path class="q" d="M360 686 H410"/><text class="s" x="420" y="690">message queue</text>
+  <text class="s" x="40" y="720">Fika · 6 fictional cafés, 21 real districts, demo payment · github.com/Jyothi0612/fika-stockholm</text>
+</svg>
