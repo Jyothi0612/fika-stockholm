@@ -63,7 +63,7 @@ async function basket() {
   if (!b.items.length) { view.innerHTML = `<h1>Your basket</h1><div class="panel">Empty, for now. <a href="/" data-link>Find a café →</a></div>`; return; }
   try { districts = await api('delivery/districts'); } catch (_) {}
   if (!cafeNames) { try { cafeNames = Object.fromEntries((await api('menu/cafes')).map((c) => [c.id, c.name])); } catch (_) { cafeNames = {}; } }
-  const cafeId = cafeOf(b.items[0].sku);
+  const cafeId = b.items[0].cafe;
   view.innerHTML = `<h1>Your basket</h1><div class="two"><div class="panel"><table>
     <tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th></tr>
     ${b.items.map((i) => `<tr><td>${esc(i.name)}<br><span class="small muted">${esc(cafeNames[i.cafe] || i.cafe)}</span></td>
@@ -81,7 +81,6 @@ async function basket() {
       <p class="small muted">Demo mobile pay: no real money moves.</p></div></div>`;
   basketCafe = cafeId;
 }
-const cafeOf = (sku) => ({ BH: 'bullhornan', KK: 'kardemumma', SK: 'stromkaffe', KF: 'kungsholms', OK: 'ostermalms' }[sku.split('-')[0]]);
 const quoteText = (q) => q.mode === 'pickup' ? `Pickup at ${esc(q.cafe)}: ready in about ${q.minutes} min. Free.` : `Bike from ${esc(q.cafe)} to ${esc(q.district)}: ${q.km} km, about ${q.minutes} min, ${sek(q.fee)}.`;
 
 async function confirmDelivery() {

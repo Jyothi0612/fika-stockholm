@@ -9,7 +9,8 @@ db.cafes.insertMany([
   { id: 'kardemumma', name: 'Kafé Kardemumma', district: 'Vasastan', lat: 59.3437, lon: 18.0469, about: 'Cardamom everything, and very good filter coffee.' },
   { id: 'stromkaffe', name: 'Strömkaffe', district: 'Gamla stan', lat: 59.3251, lon: 18.0711, about: 'A tiny café in the old town, with a view of the water.' },
   { id: 'kungsholms', name: 'Kungsholms Fikabod', district: 'Kungsholmen', lat: 59.3326, lon: 18.0335, about: 'Cakes for every kalas, and oat milk for everyone.' },
-  { id: 'ostermalms', name: 'Östermalms Kakverkstad', district: 'Östermalm', lat: 59.3378, lon: 18.0833, about: 'Classic Swedish cakes, made the slow way.' }
+  { id: 'ostermalms', name: 'Östermalms Kakverkstad', district: 'Östermalm', lat: 59.3378, lon: 18.0833, about: 'Classic Swedish cakes, made the slow way.' },
+  { id: 'hasselby', name: 'Strandbageriet', district: 'Hässelby', lat: 59.3615, lon: 17.8325, about: 'Lakeside bakery by Mälaren, worth the trip out west.' }
 ]);
 
 const items = [
@@ -33,7 +34,12 @@ const items = [
   ['ostermalms', 'OK-PRINS', 'Prinsesstårta', 'Whole cake for 8, order a day ahead', 'cake', 495, 4],
   ['ostermalms', 'OK-BISKV', 'Biskvi', 'Almond base, chocolate buttercream', 'sweet', 42, 30],
   ['ostermalms', 'OK-TOSCA', 'Toscakaka', 'Almond and caramel cake', 'cake', 58, 20],
-  ['ostermalms', 'OK-ESPRE', 'Espresso', 'Single origin', 'coffee', 36, 150]
+  ['ostermalms', 'OK-ESPRE', 'Espresso', 'Single origin', 'coffee', 36, 150],
+  ['hasselby', 'HS-KANEL', 'Kanelbulle', 'Baked at dawn, still warm at nine', 'bun', 40, 50],
+  ['hasselby', 'HS-VANIL', 'Vaniljbulle', 'Vanilla custard bun with sugar on top', 'bun', 45, 30],
+  ['hasselby', 'HS-MAZAR', 'Mazarin', 'Almond tart with a thin icing', 'sweet', 39, 25],
+  ['hasselby', 'HS-BRYGG', 'Bryggkaffe', 'Filter coffee to take down to the water', 'coffee', 35, 200],
+  ['hasselby', 'HS-LATTE', 'Café latte', 'Whole or oat milk', 'coffee', 49, 150]
 ];
 db.items.insertMany(items.map(([cafe, sku, name, description, category, price, stock]) => ({ cafe, sku, name, description, category, price, stock })));
 
