@@ -19,11 +19,16 @@ systemctl start mysqld
 
 ## Configure
 
-Set the root password (`Fika@1`, or your own):
+A new MySQL starts with an empty root password. Set it (`Fika@1`, or your own):
 
 ```shell
-mysql_secure_installation --set-root-pass Fika@1
+mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Fika@1';"
+mysql -u root -pFika@1 -e "SELECT 1"      # prints 1: the password works
 ```
+
+Don't use `mysql_secure_installation --set-root-pass`, as in older guides: that option was only in Red Hat's MySQL 8.0. MySQL 8.4 doesn't have it, so the password is never set and the next step fails with `ERROR 1045 Access denied for user 'root'@'localhost'`.
+
+Running this a second time fails with `Access denied … (using password: NO)`: that only means the password is already set.
 
 ## Load the data, here on the MySQL server
 
@@ -53,6 +58,11 @@ mysql -u root -pFika@1 -e "SELECT user, host FROM mysql.user;"      # delivery |
 Allow **inbound TCP 3306** from `fika-delivery` only.
 
 ## Troubleshooting
+
+| You see on this server | Cause |
+|---|---|
+| `ERROR 1045 Access denied for user 'root'@'localhost' (using password: YES)` | the root password was never set (e.g. `--set-root-pass` was used, which MySQL 8.4 rejects): run the `ALTER USER` step above without `-p` |
+| `ERROR 1045 … (using password: NO)` | the root password is already set: add `-pFika@1` |
 
 | You see on delivery | Cause |
 |---|---|
