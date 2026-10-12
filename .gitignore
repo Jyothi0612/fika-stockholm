@@ -5,3 +5,4 @@ local/default.d/
 __pycache__/
 *.tar.gz
 .DS_Store
+dist/
