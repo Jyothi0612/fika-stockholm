@@ -1,0 +1,17 @@
+[Unit]
+Description=Fika basket service
+After=network-online.target
+
+[Service]
+User=fika
+WorkingDirectory=/app
+Environment=REDIS_HOST=redis.fika.DOMAIN_NAME
+Environment=MENU_HOST=menu.fika.DOMAIN_NAME
+Environment=MENU_PORT=8080
+ExecStart=/app/.venv/bin/gunicorn --config gunicorn.conf.py basket:app
+SyslogIdentifier=basket
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
