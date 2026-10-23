@@ -67,14 +67,14 @@ validate $? "Adding mongo repo"
 dnf install mongodb-mongosh -y &>> $logs_file 
 validate $? "Installing mongodb client"
 
-product_count=$(mongosh --host "mongodb.fika.$domain_name" --quiet --eval 'db.getSiblingDB("menu").products.countDocuments()' 2>> $logs_file)
-validate $? "Connecting to MongoDb"
+item_count=$(mongosh --host "mongodb.fika.$domain_name" --quiet --eval 'db.getSiblingDB("menu").items.countDocuments()' 2>> $logs_file)
+validate $? "Connecting to MongoDB"
 
-if [ "$product_count" -eq 0 ]; then
+if [ "$item_count" -eq 0 ]; then
     mongosh --host "mongodb.fika.$domain_name" </app/db/menu-data.js &>> $logs_file
-    validate $? "Loading Products"
+    validate $? "Loading menu items"
 else
-    echo -e "$(timestamp) [INFO] Prodcuts are already loaded...${Y}SKIPPING${N}"
+    echo -e "$(timestamp) [INFO] Menu items already loaded ($item_count)...${Y}SKIPPING${N}" | tee -a $logs_file
 fi
 
 sed -i "s/DOMAIN_NAME/$domain_name/g" "$scripts_dir/menu.service"
