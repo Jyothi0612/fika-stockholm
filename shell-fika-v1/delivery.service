@@ -1,0 +1,18 @@
+[Unit]
+Description=Fika delivery service
+After=network-online.target
+
+[Service]
+User=fika
+Environment=DB_HOST=mysql.fika.DOMAIN_NAME
+Environment=DB_USER=delivery
+Environment=DB_PASS=Fika@123
+Environment=MENU_HOST=menu.fika.DOMAIN_NAME
+Environment=BASKET_HOST=basket.fika.DOMAIN_NAME
+ExecStart=/bin/java -jar /app/delivery.jar
+SyslogIdentifier=delivery
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
