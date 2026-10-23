@@ -45,3 +45,6 @@ validate $? "Updating remote connections to mongodb"
 
 systemctl restart mongod
 validate $? "Restarting mongodb"
+
+echo "$(timestamp) [INFO] Script completed in $SECONDS seconds"
+echo "$(timestamp) [INFO] ==== Script completed execution ====" | tee -a $logs_file
