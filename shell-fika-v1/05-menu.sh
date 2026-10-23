@@ -71,7 +71,7 @@ product_count=$(mongosh --host "mongodb.fika.$domain_name" --quiet --eval 'db.ge
 validate $? "Connecting to MongoDb"
 
 if [ "$product_count" -eq 0 ]; then
-    mongosh --host "mongodb.fika$domain_name" </app/db/menu-data.js &>> $logs_file
+    mongosh --host "mongodb.fika.$domain_name" </app/db/menu-data.js &>> $logs_file
     validate $? "Loading Products"
 else
     echo -e "$(timestamp) [INFO] Prodcuts are already loaded...${Y}SKIPPING${N}"
