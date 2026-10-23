@@ -1,0 +1,14 @@
+[Unit]
+Description=Fika menu service
+After=network-online.target
+
+[Service]
+User=fika
+Environment=MONGO_URL="mongodb://mongodb.fika.DOMAIN_NAME:27017/menu"
+ExecStart=/bin/node /app/server.js
+SyslogIdentifier=menu
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
