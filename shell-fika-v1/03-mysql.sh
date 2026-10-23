@@ -8,7 +8,7 @@ G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
 
-if [ user_id -ne 0 ]; then
+if [ $user_id -ne 0 ]; then
     echo "Please run this script with sudo access"
     exit 1
 fi
