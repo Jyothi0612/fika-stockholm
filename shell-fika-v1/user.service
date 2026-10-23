@@ -1,0 +1,15 @@
+[Unit]
+Description=Fika user service
+After=network-online.target
+
+[Service]
+User=fika
+Environment=MONGO_URL="mongodb://mongodb.fika.DOMAIN_NAME:27017/users"
+Environment=REDIS_URL="redis://redis.fika.DOMAIN_NAME:6379"
+ExecStart=/bin/node /app/server.js
+SyslogIdentifier=user
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
